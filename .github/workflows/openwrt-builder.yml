@@ -15,6 +15,12 @@ name: OpenWrt Builder
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      ssh_enabled:
+        type: boolean
+        description: 'You can do make menuconfig manually after installing feeds.'
+        required: true
+        default: true
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
@@ -88,11 +94,12 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3.18
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh_enabled }}
       with: 
         limit-access-to-actor: true
-        wait-timeout-minutes: 30
+        timeout-minutes: 30
 
     - name: Download package
       id: package
