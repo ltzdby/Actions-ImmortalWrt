@@ -18,9 +18,19 @@ on:
     inputs:
       ssh_enabled:
         type: boolean
-        description: 'You can do make menuconfig manually after installing feeds.'
+        description: 'Enable SSH after install feeds'
         required: true
         default: true
+      runner_debug_enabled:
+        type: boolean
+        description: 'Debug runner'
+        required: true
+        default: false
+      step_debug_enabled:
+        type: boolean
+        description: 'Debug steps'
+        required: true
+        default: false
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
@@ -33,6 +43,8 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  ACTIONS_RUNNER_DEBUG: inputs.runner_debug_enabled
+  ACTIONS_STEP_DEBUG: inputs.step_debug_enabled
 
 jobs:
   build:
@@ -99,12 +111,13 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh_enabled }}
       with: 
         limit-access-to-actor: true
-        timeout-minutes: 30
+        connect-timeout-seconds: 1800
 
     - name: Download package
       id: package
       run: |
         cd openwrt
+        ./scripts/diffconfig.sh > diffconfig
         make defconfig
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
