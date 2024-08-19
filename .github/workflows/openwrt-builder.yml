@@ -43,8 +43,8 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  ACTIONS_RUNNER_DEBUG: inputs.runner_debug_enabled
-  ACTIONS_STEP_DEBUG: inputs.step_debug_enabled
+  ACTIONS_RUNNER_DEBUG: true
+  ACTIONS_STEP_DEBUG: true
 
 jobs:
   build:
