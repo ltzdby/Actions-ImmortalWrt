@@ -132,7 +132,7 @@ jobs:
       with: 
         limit-access-to-actor: true
         connect-timeout-seconds: 1800
-        detached: inputs.ssh_detached
+        detached: ${{ inputs.ssh_detached }}
 
     - name: Download package
       id: package
