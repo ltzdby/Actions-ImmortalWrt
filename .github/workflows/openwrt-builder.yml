@@ -21,6 +21,11 @@ on:
         description: 'Enable SSH after install feeds'
         required: true
         default: true
+      ssh_detached:
+        type: boolean
+        description: 'Enable SSH detached mode'
+        required: true
+        default: false
       branch:
         type: string
         description: 'Branch'
@@ -90,7 +95,7 @@ jobs:
         libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lld llvm lrzsz mkisofs msmtp \
         nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply \
         python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
-        texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+        texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd top
         sudo -E apt autoremove --purge
         sudo -E apt clean
         sudo timedatectl set-timezone "$TZ"
@@ -127,6 +132,7 @@ jobs:
       with: 
         limit-access-to-actor: true
         connect-timeout-seconds: 1800
+        detached: inputs.ssh_detached
 
     - name: Download package
       id: package
