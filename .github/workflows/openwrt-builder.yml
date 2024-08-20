@@ -126,7 +126,7 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh_enabled }}
       with: 
         limit-access-to-actor: true
-        # connect-timeout-seconds: 1800
+        connect-timeout-seconds: 1800
 
     - name: Download package
       id: package
@@ -142,8 +142,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        # echo -e "$(nproc) thread compile"
-        make -j1 || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
         echo "STATUS=success" >> $GITHUB_ENV
 
     - name: Recompile the firmware
