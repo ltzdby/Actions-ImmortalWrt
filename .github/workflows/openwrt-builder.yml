@@ -78,7 +78,7 @@ jobs:
       run: |
         sudo -E apt update -y
         sudo -E apt full-upgrade -y
-        sudo -E apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        sudo -E apt install -y --no-install-recommends ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
         bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
         g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
         libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 \
@@ -137,8 +137,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
+        # echo -e "$(nproc) thread compile"
+        make -j2 V=s || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
         echo "STATUS=success" >> $GITHUB_ENV
 
     - name: Recompile the firmware
@@ -204,7 +204,7 @@ jobs:
       uses: Mattraks/delete-workflow-runs@v2.0.6
       with:
         retain_days: 0
-        keep_minimum_runs: 2
+        keep_minimum_runs: 5
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.3.4
