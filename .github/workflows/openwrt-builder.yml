@@ -79,7 +79,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt update -y
-        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
         sudo -E apt autoremove -y --purge
         sudo -E apt clean
         sudo -E apt full-upgrade -y
