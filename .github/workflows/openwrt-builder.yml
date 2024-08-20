@@ -59,11 +59,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: maximize build space
+    - name: Maximize build space
       uses: easimon/maximize-build-space@v10
       with:
         root-reserve-mb: 4096
-        swap-size-mb: 10240
+        swap-size-mb: 30720
         remove-dotnet: true
         remove-android: true
         remove-haskell: true
@@ -79,7 +79,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt update -y
-        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo -E apt autoremove -y --purge
         sudo -E apt clean
         sudo -E apt full-upgrade -y
@@ -142,8 +142,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(nproc) thread compile"
-        make -j$(nproc) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
+        echo -e "$(($(nproc) + 1)) thread compile"
+        make -j$(($(nproc) + 1)) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
         echo "STATUS=success" >> $GITHUB_ENV
 
     - name: Recompile the firmware
@@ -159,11 +159,10 @@ jobs:
       run: |
         cd openwrt
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)DEVICE_(.*)=y/\1\2/' > TARGET
-        [ -s TARGET ] && echo "TARGET=_$(cat TARGET)" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M%S")" >> $GITHUB_ENV
+        [ -s TARGET ] && echo "TARGET=$(cat TARGET)" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")" >> $GITHUB_ENV
         cd bin/targets/*/*
-        echo "FIRMWARE_PWD=$PWD" >> $GITHUB_ENV
-        echo "VERSION=$REPO_BRANCH__$(cat version.buildinfo)" >> $GITHUB_ENV
+        echo "VERSION=${{ env.REPO_BRANCH }}_$(cat version.buildinfo)" >> $GITHUB_ENV
 
     - name: Check space usage
       run: df -hT
@@ -178,11 +177,12 @@ jobs:
           openwrt/diffconfig
         if-no-files-found: error
 
-    - name: Delete packages folder
+    - name: Delete packages folder, create symlink
       if: env.STATUS == 'success' && env.UPLOAD_FIRMWARE == 'true'
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
+        ln -s $PWD ../../../../images
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@v4
@@ -190,7 +190,7 @@ jobs:
       with:
         name: ImmortalWrt_${{ env.VERSION }}_${{ env.TARGET }}_${{ env.FILE_DATE }}
         path: |
-          ${{ env.FIRMWARE_PWD }}/*
+          openwrt/images
           openwrt/diffconfig
         if-no-files-found: error
 
@@ -201,8 +201,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}_${{ env.FILE_DATE }}
+        body: ${{ env.VERSION }}_${{ env.FILE_DATE }}
         files: |
-          ${{ env.FIRMWARE_PWD }}/*
+          openwrt/images/*
           openwrt/diffconfig
 
     - name: Delete workflow runs
