@@ -68,7 +68,7 @@ jobs:
       uses: easimon/maximize-build-space@v10
       with:
         root-reserve-mb: 4096
-        swap-size-mb: 61440
+        swap-size-mb: 40960
         remove-dotnet: true
         remove-android: true
         remove-haskell: true
@@ -148,8 +148,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(($(nproc) + 1)) thread compile"
-        make -j$(($(nproc) + 1)) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
         echo "STATUS=success" >> $GITHUB_ENV
 
     - name: Recompile the firmware
