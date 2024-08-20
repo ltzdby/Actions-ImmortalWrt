@@ -63,11 +63,6 @@ jobs:
       uses: easimon/maximize-build-space@v10
       with:
         root-reserve-mb: 4096
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-codeql: 'true'
-        remove-docker-images: 'true'
 
     - name: Checkout
       uses: actions/checkout@main
@@ -76,7 +71,12 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        docker rmi `docker images -q`
+        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
         sudo -E apt update -y
+        sudo -E apt purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        sudo -E apt autoremove -y --purge
+        sudo -E apt clean
         sudo -E apt full-upgrade -y
         sudo -E apt install -y --no-install-recommends ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
         bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
