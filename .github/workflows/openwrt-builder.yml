@@ -149,16 +149,16 @@ jobs:
       run: |
         cd openwrt
         # echo -e "$(nproc) thread compile"
-        make -j2 || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
+        make -j1 V=s || (echo "STATUS=failure" >> $GITHUB_ENV && exit 1)
         echo "STATUS=success" >> $GITHUB_ENV
 
-    - name: Recompile the firmware
-      id: recompile
-      if: env.STATUS != 'success'
-      run: |
-        cd openwrt
-        make -j1 V=s || exit 1
-        echo "STATUS=success" >> $GITHUB_ENV
+    # - name: Recompile the firmware
+    #   id: recompile
+    #   if: env.STATUS != 'success'
+    #   run: |
+    #     cd openwrt
+    #     make -j1 V=s || exit 1
+    #     echo "STATUS=success" >> $GITHUB_ENV
 
     - name: Set build variables
       if: env.STATUS == 'success'
