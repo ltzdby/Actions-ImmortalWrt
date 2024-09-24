@@ -97,8 +97,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ImmortalWrt_diffconfig_${{ env.REPO_BRANCH }}_${{ env.TARGET }}_${{ env.FILE_DATE }}
-        path: |
-          openwrt/diffconfig
+        path: openwrt/diffconfig
         if-no-files-found: error
 
     - name: Delete workflow runs
