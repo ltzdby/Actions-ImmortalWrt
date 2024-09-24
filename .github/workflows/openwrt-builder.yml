@@ -16,16 +16,6 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      ssh_enabled:
-        type: boolean
-        description: 'Enable SSH after install feeds'
-        required: true
-        default: true
-      ssh_detached:
-        type: boolean
-        description: 'Enable SSH detached mode'
-        required: true
-        default: false
       branch:
         type: string
         description: 'Branch'
@@ -125,14 +115,6 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3.18
-      if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh_enabled }}
-      with: 
-        limit-access-to-actor: true
-        connect-timeout-seconds: 1800
-        detached: ${{ inputs.ssh_detached }}
 
     - name: Download package
       id: package
