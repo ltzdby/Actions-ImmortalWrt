@@ -8,13 +8,12 @@ on:
         type: string
         description: 'Branch'
         required: true
-        default: 'v23.05.3'
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: ${{ inputs.branch }}
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: .config
+  CONFIG_FILE: diffconfig
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
@@ -25,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
 
     - name: Initialization environment
       env:
@@ -52,7 +51,8 @@ jobs:
     - name: Clone source code
       run: |
         df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        echo $REPO_BRANCH > branch
+        git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
 
     - name: Load custom feeds
       run: |
@@ -73,6 +73,7 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+        make defconfig
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3.18
@@ -84,21 +85,20 @@ jobs:
       run: |
         cd openwrt
         ./scripts/diffconfig.sh > diffconfig
-        make defconfig
+        mv diffconfig ../
+        TARGET=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)DEVICE_(.*)=y/\1\2/')
+        FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
+        echo "OUTPUT_NAME=\"${REPO_BRANCH}_${TARGET}_${FILE_DATE}\"" >> $GITHUB_ENV
 
-    - name: Set build variables
-      run: |
-        cd openwrt
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)DEVICE_(.*)=y/\1\2/' > TARGET
-        [ -s TARGET ] && echo "TARGET=$(cat TARGET)" >> $GITHUB_ENV
-        echo "FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")" >> $GITHUB_ENV
-
-    - name: Upload diffconfig to artifact
-      uses: actions/upload-artifact@v4
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v7
       with:
-        name: ImmortalWrt_diffconfig_${{ env.REPO_BRANCH }}_${{ env.TARGET }}_${{ env.FILE_DATE }}
-        path: openwrt/diffconfig
-        if-no-files-found: error
+        branch: timestamp
+        commit-message: update config ${{ env.OUTPUT_NAME }}
+        title: update config ${{ env.OUTPUT_NAME }}
+        add-paths: |
+          branch
+          diffconfig
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@v2.0.6
