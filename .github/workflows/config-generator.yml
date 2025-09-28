@@ -18,13 +18,15 @@ env:
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
 
-permissions:
-  contents: write
-  pull-requests: write
+
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
     - name: Checkout
@@ -45,7 +47,7 @@ jobs:
         python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
         texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
         # sudo -E apt-get purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get full-upgrade -y
+        sudo -E apt-get upgrade -y
         sudo -E apt-get autoremove -y --purge
         sudo -E apt-get clean
         sudo timedatectl set-timezone "$TZ"
@@ -91,11 +93,11 @@ jobs:
         TARGET=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)DEVICE_(.*)=y/\1\2/')
         FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
         echo "OUTPUT_NAME=\"${REPO_BRANCH}_${TARGET}_${FILE_DATE}\"" >> $GITHUB_ENV
-        echo $OUTPUT_NAME
 
     - name: Create pull request
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         branch: timestamp
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}

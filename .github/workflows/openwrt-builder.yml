@@ -71,7 +71,7 @@ jobs:
         python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
         texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
         # sudo -E apt-get purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get full-upgrade -y
+        sudo -E apt-get upgrade -y
         sudo -E apt-get autoremove -y --purge
         sudo -E apt-get clean
         sudo timedatectl set-timezone "$TZ"
@@ -137,7 +137,6 @@ jobs:
         [ "$UPLOAD_SUBDIRS" = "true" ] && SUBDIRS_FLAG=_with_subdirs
         echo "OUTPUT_NAME=\"${VERSION}_${TARGET}_${FILE_DATE}${SUBDIRS_FLAG}\"" >> $GITHUB_ENV
         echo "OUTPUT_PATH=$(echo $PWD)" >> $GITHUB_ENV
-        echo $OUTPUT_NAME
 
     - name: Check space usage
       run: df -hT
