@@ -165,7 +165,7 @@ jobs:
         tag_name: ${{ env.OUTPUT_NAME }}
         body: ${{ env.OUTPUT_NAME }}
         files: |
-          ${{ env.OUTPUT_PATH }}
+          ${{ env.OUTPUT_PATH }}/*
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@v2.0.6
