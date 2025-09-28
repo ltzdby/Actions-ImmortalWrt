@@ -80,7 +80,7 @@ jobs:
       run: |
         df -hT $PWD
         echo "REPO_BRANCH=$(cat branch)" >> $GITHUB_ENV
-        git clone $REPO_URL -b ${{ env.REPO_BRANCH }} --single-branch --filter=blob:none openwrt
+        git clone $REPO_URL -b ${cat branch} --single-branch --filter=blob:none openwrt
 
     - name: Load custom feeds
       run: |
@@ -135,7 +135,7 @@ jobs:
         cd bin/targets/*/*
         VERSION="${{ env.REPO_BRANCH }}_$(cat version.buildinfo)"
         [ "$UPLOAD_SUBDIRS" = "true" ] && SUBDIRS_FLAG=_with_subdirs
-        echo "OUTPUT_NAME=\"${VERSION}_${TARGET}_${FILE_DATE}${SUBDIRS_FLAG}\"" >> $GITHUB_ENV
+        echo "OUTPUT_NAME=${VERSION}_${TARGET}_${FILE_DATE}${SUBDIRS_FLAG}" >> $GITHUB_ENV
         echo "OUTPUT_PATH=$(echo $PWD)" >> $GITHUB_ENV
 
     - name: Check space usage
