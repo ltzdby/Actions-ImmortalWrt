@@ -1,4 +1,5 @@
 name: Config Generator
+run-name: Config Generator - ${{ inputs.branch }}
 
 on:
   repository_dispatch:
@@ -113,4 +114,4 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 5
-        delete_workflow_pattern: "Config Generator"
+        delete_workflow_pattern: "Config Generator - ${{ env.REPO_BRANCH }}"

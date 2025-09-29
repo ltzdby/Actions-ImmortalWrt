@@ -10,7 +10,8 @@
 # See /LICENSE for more information.
 #
 
-name: "OpenWrt Builder - ${{ github.ref_name }}"
+name: OpenWrt Builder
+run-name: OpenWrt Builder - ${{ github.ref_name }}
 
 on:
   repository_dispatch:
@@ -165,7 +166,7 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 5
-        delete_workflow_pattern: "*${{ github.ref_name }}"
+        delete_workflow_pattern: "OpenWrt Builder - ${{ github.ref_name }}"
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.3.4
