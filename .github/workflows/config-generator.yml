@@ -6,7 +6,7 @@ on:
     inputs:
       branch:
         type: string
-        description: 'Branch'
+        description: 'Branch or tag or ref'
         required: true
 
 env:
@@ -18,15 +18,19 @@ env:
   DIY_P2_SH: diy-part2.sh
   TZ: Asia/Shanghai
 
-
-
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
+    - name: Clone source code
+      run: |
+        git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
+
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        ref: $REPO_BRANCH
 
     - name: Initialization environment
       env:
@@ -47,12 +51,7 @@ jobs:
         sudo -E apt-get autoremove -y --purge
         sudo -E apt-get clean
         sudo timedatectl set-timezone "$TZ"
-
-    - name: Clone source code
-      run: |
         df -hT $PWD
-        echo $REPO_BRANCH > branch
-        git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
 
     - name: Load custom feeds
       run: |
@@ -95,10 +94,10 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch-suffix: timestamp
+        base: $REPO_BRANCH
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
         add-paths: |
-          branch
           diffconfig
 
     - name: Delete workflow runs
