@@ -31,12 +31,11 @@ jobs:
 
     - name: Switch to branch
       run: |
-        git rev-parse --verify $REPO_BRANCH >/dev/null 2>&1 || (git checkout -B $REPO_BRANCH && git push -u origin $REPO_BRANCH)
+        git rev-parse --verify $REPO_BRANCH || (git checkout -B $REPO_BRANCH && git push -u origin $REPO_BRANCH)
         git checkout $REPO_BRANCH
 
     - name: Clone source code
       run: |
-        git checkout -B $REPO_BRANCH
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
 
     - name: Initialize environment
