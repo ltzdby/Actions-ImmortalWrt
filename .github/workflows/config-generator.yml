@@ -26,6 +26,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Switch to branch
+      run: |
+        git rev-parse --verify $REPO_BRANCH >/dev/null 2>&1 || (git checkout -B $REPO_BRANCH && git push -u origin $REPO_BRANCH)
+        git checkout -b $REPO_BRANCH
+
     - name: Clone source code
       run: |
         git checkout -B $REPO_BRANCH
