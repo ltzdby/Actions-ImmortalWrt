@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: OpenWrt Builder - ${{ github.ref_name }}
+name: "OpenWrt Builder - ${{ github.ref_name }}"
 
 on:
   repository_dispatch:
