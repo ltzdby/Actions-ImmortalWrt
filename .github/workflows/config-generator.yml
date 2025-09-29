@@ -29,8 +29,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        ref: ${{ env.REPO_BRANCH }}
+      run: |
+        git checkout -B $REPO_BRANCH
 
     - name: Initialization environment
       env:
@@ -94,7 +94,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch-suffix: timestamp
-        base: $REPO_BRANCH
+        base: ${{ env.REPO_BRANCH }}
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
         add-paths: |
