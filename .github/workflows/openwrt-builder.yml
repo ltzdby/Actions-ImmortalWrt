@@ -161,13 +161,6 @@ jobs:
         files: |
           ${{ env.OUTPUT_PATH }}/*
 
-    - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@v2.0.6
-      with:
-        retain_days: 0
-        keep_minimum_runs: 5
-        delete_workflow_pattern: "OpenWrt Builder - ${{ github.ref_name }}"
-
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.3.4
       if: env.UPLOAD_2_RELEASE == 'true'

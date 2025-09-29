@@ -107,10 +107,3 @@ jobs:
         title: update config ${{ env.OUTPUT_NAME }}
         add-paths: |
           diffconfig
-
-    - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@v2.0.6
-      with:
-        retain_days: 0
-        keep_minimum_runs: 5
-        delete_workflow_pattern: "Config Generator - ${{ env.REPO_BRANCH }}"
