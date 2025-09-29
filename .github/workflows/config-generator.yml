@@ -38,10 +38,13 @@ jobs:
         git checkout -B $REPO_BRANCH
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
 
-    - name: Initialization environment
+    - name: Initialize environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        df -hT
+        sudo -E apt-get purge -y --ignore-missing azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
+        sudo -E apt-get autoremove -y --purge
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
@@ -52,12 +55,11 @@ jobs:
         nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply \
         python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
         texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
-        # sudo -E apt-get purge -y azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
         sudo -E apt-get upgrade -y
         sudo -E apt-get autoremove -y --purge
-        sudo -E apt-get clean
+        sudo -E apt-get autoclean -y
         sudo timedatectl set-timezone "$TZ"
-        df -hT $PWD
+        df -hT
 
     - name: Load custom feeds
       run: |
@@ -111,3 +113,4 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 5
+        delete_workflow_pattern: "Config Generator"
