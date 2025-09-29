@@ -100,34 +100,28 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    # - name: Download package
-    #   id: package
-    #   run: |
-    #     cd openwrt
-    #     make defconfig
-    #     make download -j8
-    #     find dl -size -1024c -exec ls -l {} \;
-    #     # find dl -size -1024c -exec rm -f {} \;
-
-    # - name: Compile the firmware
-    #   id: compile
-    #   run: |
-    #     cd openwrt
-    #     echo -e "$(nproc) thread compile"
-    #     make -j$(nproc) && echo "STATUS=success" >> $GITHUB_ENV
-
-    # - name: Retry compiling the firmware
-    #   id: retry
-    #   if: env.STATUS != 'success'
-    #   run: |
-    #     cd openwrt
-    #     make -j1 V=s
-
-    - name: mock build output
+    - name: Download package
+      id: package
       run: |
-        echo "CONFIG_TARGET_x86_64_DEVICE_generic=y" > openwrt/.config
-        mkdir -p openwrt/bin/targets/x86/64
-        echo "r33451-5531f6bc76a3" > openwrt/bin/targets/x86/64/version.buildinfo
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        # find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) && echo "STATUS=success" >> $GITHUB_ENV || true
+
+    - name: Retry compiling the firmware
+      id: retry
+      if: env.STATUS != 'success'
+      run: |
+        cd openwrt
+        make -j1 V=s
 
     - name: Set build variables
       run: |
