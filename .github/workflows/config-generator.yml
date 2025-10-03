@@ -18,8 +18,6 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: v${{ inputs.version }}
-  BRANCH: v${{ inputs.version }}_$(echo "${{ inputs.target }}" | sed 's/\//_/g')
-  TARGET_NAME: $(echo "${{ inputs.target }}" | sed 's/\//_/g')
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: diffconfig
   DIY_P1_SH: diy-part1.sh
@@ -38,6 +36,10 @@ jobs:
 
     - name: Switch to branch
       run: |
+        TARGET_NAME=$(echo "${{ inputs.target }}" | sed 's/\//_/g')
+        echo "TARGET_NAME=${TARGET_NAME}" >> $GITHUB_ENV
+        BRANCH=v${{ inputs.version }}_${TARGET_NAME}
+        echo "BRANCH=$BRANCH" >> $GITHUB_ENV
         git fetch origin $BRANCH || (git checkout -b $BRANCH && git push -u origin $BRANCH)
         git checkout $BRANCH
 

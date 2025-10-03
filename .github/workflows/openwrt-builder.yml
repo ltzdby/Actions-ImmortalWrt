@@ -25,7 +25,6 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: $(echo "${{ github.ref_name }}" | cut -d '_' -f 1)
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: diffconfig
   DIY_P1_SH: diy-part1.sh
@@ -78,6 +77,8 @@ jobs:
     - name: Clone source code
       run: |
         df -hT
+        REPO_BRANCH=$(echo "${{ github.ref_name }}" | cut -d '_' -f 1)
+        echo "REPO_BRANCH=${REPO_BRANCH}" >> $GITHUB_ENV
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
 
     - name: Load custom feeds
