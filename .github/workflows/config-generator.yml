@@ -118,7 +118,7 @@ jobs:
             echo "The new vermagic $NEW_VERMAGIC does not match offical vermagic $OFFICIAL_VERMAGIC"
             echo ".config.set diff:"
             diff official_config.set new_config.set
-            echo EOF
+            echo 'EOF'
           } >> $GITHUB_ENV
         fi
 
