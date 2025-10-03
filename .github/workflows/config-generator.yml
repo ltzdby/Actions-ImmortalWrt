@@ -87,6 +87,7 @@ jobs:
     - name: Get official kernel vermagic and .config.set
       run: |
         cd openwrt
+        make defconfig
         make target/linux/compile || true
         echo "OFFICIAL_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)" >> $GITHUB_ENV
         cp ./build_dir/target-*/linux-*/linux-*/.config.set offical_config.set
