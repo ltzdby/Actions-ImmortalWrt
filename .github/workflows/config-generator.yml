@@ -110,17 +110,9 @@ jobs:
       run: |
         cd openwrt
         make target/linux/compile || true
-        NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+        echo "NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)" >> $GITHUB_ENV
         cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
-        if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
-          {
-            echo 'MSG<<EOF'
-            echo "The new vermagic $NEW_VERMAGIC does not match offical vermagic $OFFICIAL_VERMAGIC"
-            echo ".config.set diff:"
-            diff official_config.set new_config.set
-            echo 'EOF'
-          } >> $GITHUB_ENV
-        fi
+        echo -e "CONFIG_SET_DIFF=$(diff official_config.set new_config.set)" >> $GITHUB_ENV
 
     - name: Generate diffconfig
       run: |
@@ -146,6 +138,13 @@ jobs:
         base: ${{ env.BRANCH }}
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
-        body: ${{ env.MSG }}
+        body: |
+          Official vermagic: ${{ env.OFFICIAL_VERMAGIC }}
+
+          New vermagic: ${{ env.NEW_VERMAGIC }}
+
+          .config.set diff:
+
+          ${{ env.CONFIG_SET_DIFF }}
         add-paths: |
           diffconfig
