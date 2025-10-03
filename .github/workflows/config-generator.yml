@@ -90,7 +90,7 @@ jobs:
         make defconfig
         make target/linux/compile || true
         echo "OFFICIAL_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)" >> $GITHUB_ENV
-        cp ./build_dir/target-*/linux-*/linux-*/.config.set offical_config.set
+        cp ./build_dir/target-*/linux-*/linux-*/.config.set official_config.set
 
     - name: Load custom configuration
       run: |
@@ -113,7 +113,13 @@ jobs:
         NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
         cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
         if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
-          echo "MSG=\"The new vermagic $NEW_VERMAGIC does not match offical vermagic $OFFICIAL_VERMAGIC\n.config.set diff:\n$(diff official_config.set new_config.set)\"" >> $GITHUB_ENV
+          {
+            echo 'MSG<<EOF'
+            echo "The new vermagic $NEW_VERMAGIC does not match offical vermagic $OFFICIAL_VERMAGIC"
+            echo ".config.set diff:"
+            diff official_config.set new_config.set
+            echo EOF
+          } >> $GITHUB_ENV
         fi
 
     - name: Generate diffconfig
@@ -123,6 +129,14 @@ jobs:
         mv diffconfig ../
         FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
         echo "OUTPUT_NAME=${BRANCH}_${FILE_DATE}" >> $GITHUB_ENV
+
+    - name: Upload to artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ImmortalWrt_diffconfig_${{ env.OUTPUT_NAME }}
+        path: |
+          diffconfig
+        if-no-files-found: error
 
     - name: Create pull request
       uses: peter-evans/create-pull-request@v7
