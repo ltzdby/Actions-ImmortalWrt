@@ -1,18 +1,25 @@
 name: Config Generator
-run-name: Config Generator - ${{ inputs.branch }}
+run-name: Config Generator - ${{ inputs.version }} - ${{ inputs.target }}
 
 on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      branch:
+      target:
         type: string
-        description: 'Branch or tag or ref'
+        description: 'Target architecture'
+        required: true
+        default: 'x86/64'
+      version:
+        type: string
+        description: 'Release version'
         required: true
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: ${{ inputs.branch }}
+  REPO_BRANCH: v${{ inputs.version }}
+  BRANCH: v${{ inputs.version }}_$(echo "${{ inputs.target }}" | sed 's/\//_/g')
+  TARGET_NAME: $(echo "${{ inputs.target }}" | sed 's/\//_/g')
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: diffconfig
   DIY_P1_SH: diy-part1.sh
@@ -31,12 +38,13 @@ jobs:
 
     - name: Switch to branch
       run: |
-        git fetch origin $REPO_BRANCH || (git checkout -b $REPO_BRANCH && git push -u origin $REPO_BRANCH)
-        git checkout $REPO_BRANCH
+        git fetch origin $BRANCH || (git checkout -b $BRANCH && git push -u origin $BRANCH)
+        git checkout $BRANCH
 
     - name: Clone source code
       run: |
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
+        wget -O openwrt/.config https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${{ inputs.target }}/config.buildinfo
 
     - name: Initialize environment
       env:
@@ -93,16 +101,15 @@ jobs:
         cd openwrt
         ./scripts/diffconfig.sh > diffconfig
         mv diffconfig ../
-        TARGET=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)DEVICE_(.*)=y/\1\2/')
         FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
-        echo "OUTPUT_NAME=${REPO_BRANCH}_${TARGET}_${FILE_DATE}" >> $GITHUB_ENV
+        echo "OUTPUT_NAME=${BRANCH}_${FILE_DATE}" >> $GITHUB_ENV
 
     - name: Create pull request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch-suffix: timestamp
-        base: ${{ env.REPO_BRANCH }}
+        base: ${{ env.BRANCH }}
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
         add-paths: |
