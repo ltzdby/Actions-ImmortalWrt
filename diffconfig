@@ -9,6 +9,7 @@ CONFIG_BIND_ENABLE_DOH=y
 CONFIG_BUILDBOT=y
 CONFIG_BUILD_LOG=y
 CONFIG_COLLECT_KERNEL_DEBUG=y
+CONFIG_DOCKER_CGROUP_OPTIONS=y
 CONFIG_DOCKER_NET_MACVLAN=y
 CONFIG_DOCKER_STO_EXT4=y
 CONFIG_DWARVES=y
@@ -18,6 +19,9 @@ CONFIG_KERNEL_BPF_EVENTS=y
 CONFIG_KERNEL_BPF_STREAM_PARSER=y
 CONFIG_KERNEL_BUILD_DOMAIN="buildbot.infra.immortalwrt.org"
 CONFIG_KERNEL_BUILD_USER="buildbot"
+CONFIG_KERNEL_CGROUP_DEVICE=y
+CONFIG_KERNEL_CGROUP_FREEZER=y
+CONFIG_KERNEL_CGROUP_NET_PRIO=y
 CONFIG_KERNEL_DEBUG_INFO_BTF=y
 CONFIG_KERNEL_DEBUG_INFO_BTF_MODULES=y
 # CONFIG_KERNEL_DEBUG_INFO_REDUCED is not set
@@ -26,6 +30,7 @@ CONFIG_KERNEL_KPROBES=y
 CONFIG_KERNEL_KPROBE_EVENTS=y
 CONFIG_KERNEL_MODULE_ALLOW_BTF_MISMATCH=y
 CONFIG_KERNEL_NETKIT=y
+CONFIG_KERNEL_NET_CLS_CGROUP=y
 CONFIG_KERNEL_PERF_EVENTS=y
 CONFIG_KERNEL_XDP_SOCKETS=y
 CONFIG_LIBCURL_COOKIES=y
@@ -49,6 +54,7 @@ CONFIG_PACKAGE_bind-libs=y
 CONFIG_PACKAGE_bind-nslookup=y
 CONFIG_PACKAGE_bind-rndc=y
 CONFIG_PACKAGE_bind-tools=y
+CONFIG_PACKAGE_bnx2-firmware=m
 CONFIG_PACKAGE_btrfs-progs=y
 CONFIG_PACKAGE_ca-certificates=y
 CONFIG_PACKAGE_cgroupfs-mount=y
@@ -74,10 +80,33 @@ CONFIG_PACKAGE_ip6tables-nft=y
 CONFIG_PACKAGE_ipt2socks=y
 CONFIG_PACKAGE_iptables-mod-extra=y
 CONFIG_PACKAGE_iptables-nft=y
+CONFIG_PACKAGE_kmod-acpi-video=m
+CONFIG_PACKAGE_kmod-amazon-ena=m
+CONFIG_PACKAGE_kmod-amd-xgbe=m
+CONFIG_PACKAGE_kmod-backlight=m
+CONFIG_PACKAGE_kmod-bnx2=m
 CONFIG_PACKAGE_kmod-br-netfilter=y
 CONFIG_PACKAGE_kmod-crypto-blake2b=y
 CONFIG_PACKAGE_kmod-crypto-xxhash=y
+CONFIG_PACKAGE_kmod-dma-buf=m
+CONFIG_PACKAGE_kmod-drm=m
+CONFIG_PACKAGE_kmod-drm-buddy=m
+CONFIG_PACKAGE_kmod-drm-display-helper=m
+CONFIG_PACKAGE_kmod-drm-exec=m
+CONFIG_PACKAGE_kmod-drm-i915=m
+CONFIG_PACKAGE_kmod-drm-kms-helper=m
+CONFIG_PACKAGE_kmod-drm-suballoc-helper=m
+CONFIG_PACKAGE_kmod-drm-ttm=m
+CONFIG_PACKAGE_kmod-drm-ttm-helper=m
 CONFIG_PACKAGE_kmod-dummy=y
+CONFIG_PACKAGE_kmod-dwmac-intel=m
+CONFIG_PACKAGE_kmod-fb=m
+CONFIG_PACKAGE_kmod-fb-cfb-copyarea=m
+CONFIG_PACKAGE_kmod-fb-cfb-fillrect=m
+CONFIG_PACKAGE_kmod-fb-cfb-imgblt=m
+CONFIG_PACKAGE_kmod-fb-sys-fops=m
+CONFIG_PACKAGE_kmod-fb-sys-ram=m
+CONFIG_PACKAGE_kmod-forcedeth=m
 CONFIG_PACKAGE_kmod-fs-btrfs=y
 CONFIG_PACKAGE_kmod-inet-diag=y
 CONFIG_PACKAGE_kmod-ip6tables=y
@@ -104,6 +133,9 @@ CONFIG_PACKAGE_kmod-nf-tproxy=y
 CONFIG_PACKAGE_kmod-nft-compat=y
 CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
+CONFIG_PACKAGE_kmod-pcs-xpcs=m
+CONFIG_PACKAGE_kmod-stmmac-core=m
+CONFIG_PACKAGE_kmod-tg3=m
 CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-veth=y
 CONFIG_PACKAGE_kmod-xdp-sockets-diag=m
@@ -170,6 +202,7 @@ CONFIG_PACKAGE_ttyd=y
 CONFIG_PACKAGE_unzip=y
 CONFIG_PACKAGE_v2ray-plugin=y
 CONFIG_PACKAGE_vlmcsd=y
+CONFIG_PACKAGE_wget-ssl=y
 CONFIG_PACKAGE_xray-core=y
 CONFIG_PACKAGE_xray-plugin=y
 CONFIG_PACKAGE_xtables-nft=y
@@ -192,13 +225,8 @@ CONFIG_VERSION_PRODUCT=""
 CONFIG_VERSION_REPO="https://downloads.immortalwrt.org/releases/24.10.3"
 CONFIG_VERSION_SUPPORT_URL=""
 CONFIG_VHDX_IMAGES=y
-# CONFIG_DOCKER_CGROUP_OPTIONS is not set
 # CONFIG_IB is not set
 # CONFIG_ISO_IMAGES is not set
-# CONFIG_KERNEL_CGROUP_DEVICE is not set
-# CONFIG_KERNEL_CGROUP_FREEZER is not set
-# CONFIG_KERNEL_CGROUP_NET_PRIO is not set
-# CONFIG_KERNEL_NET_CLS_CGROUP is not set
 # CONFIG_MAKE_TOOLCHAIN is not set
 # CONFIG_PACKAGE_kselftests-bpf is not set
 # CONFIG_PACKAGE_libbfd is not set
