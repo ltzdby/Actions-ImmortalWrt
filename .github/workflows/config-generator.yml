@@ -57,7 +57,7 @@ jobs:
         sudo -E apt-get autoremove -y --purge
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
-        sudo -E apt-get install -y --no-install-recommends ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
         bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
         g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
         libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 \
@@ -84,9 +84,16 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+    - name: Get official kernel vermagic and .config.set
+      run: |
+        cd openwrt
+        make target/linux/compile || true
+        echo "OFFICIAL_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)" >> $GITHUB_ENV
+        cp ./build_dir/target-*/linux-*/linux-*/.config.set offical_config.set
+
     - name: Load custom configuration
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE ] && cat $CONFIG_FILE >> openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
@@ -97,6 +104,16 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' }}
       with: 
         limit-access-to-actor: true
+
+    - name: Check vermagic
+      run: |
+        cd openwrt
+        make target/linux/compile || true
+        NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+        cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
+        if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
+          echo "MSG=\"The new vermagic $NEW_VERMAGIC does not match offical vermagic $OFFICIAL_VERMAGIC\n.config.set diff:\n$(diff official_config.set new_config.set)\"" >> $GITHUB_ENV
+        fi
 
     - name: Generate diffconfig
       run: |
@@ -114,5 +131,6 @@ jobs:
         base: ${{ env.BRANCH }}
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
+        body: ${{ env.MSG }}
         add-paths: |
           diffconfig
