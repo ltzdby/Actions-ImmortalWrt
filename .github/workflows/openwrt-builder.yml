@@ -42,8 +42,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         df -hT
-        sudo -E apt-get purge -y --ignore-missing azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
-        sudo -E apt-get autoremove -y --purge
+        sudo -E apt-get purge -y --ignore-missing --autoremove --purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \

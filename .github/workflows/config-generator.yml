@@ -53,8 +53,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         df -hT
-        # sudo -E apt-get purge -y --ignore-missing azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
-        # sudo -E apt-get autoremove -y --purge
+        sudo -E apt-get purge -y --ignore-missing --autoremove --purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
@@ -113,20 +112,20 @@ jobs:
         NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
         cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
         if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
+          MSG="The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n.config.set diff:\n"
           DIFF=$(diff --minimal official_config.set new_config.set || true)
-          MSG=$(cat << EOF
-          echo -e "The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n.config.set diff:\n"
-          echo -e "```\n"
-          echo -e $DIFF
-          echo -e "```\n"
-          EOF
-          )
           {
           echo "MSG<<EOF"
-          echo -e $MSG
+          echo -e "$MSG"
+          echo -e "\`\`\`\n"
+          echo "$DIFF"
+          echo -e "\`\`\`\n"
           echo EOF
           } >> $GITHUB_ENV
-          echo -e $MSG >> $GITHUB_STEP_SUMMARY
+          echo -e "$MSG" >> $GITHUB_STEP_SUMMARY
+          echo -e "\`\`\`\n" >> $GITHUB_STEP_SUMMARY
+          echo "$DIFF" >> $GITHUB_STEP_SUMMARY
+          echo -e "\`\`\`\n" >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Generate diffconfig
