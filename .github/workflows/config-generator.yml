@@ -113,11 +113,20 @@ jobs:
         NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
         cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
         if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
-          MSG="The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n"
-          MSG="${MSG}.config.set diff:\n"
           DIFF=$(diff --minimal official_config.set new_config.set || true)
-          echo -e "MSG=${MSG}${DIFF}" >> $GITHUB_ENV
-          echo -e "${MSG}```\n${DIFF}\n```\n" >> $GITHUB_STEP_SUMMARY
+          MSG=$(cat << EOF
+          echo -e "The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n.config.set diff:\n"
+          echo -e "```\n"
+          echo -e $DIFF
+          echo -e "```\n"
+          EOF
+          )
+          {
+          echo "MSG<<EOF"
+          echo -e $MSG
+          echo EOF
+          } >> $GITHUB_ENV
+          echo -e $MSG >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Generate diffconfig
