@@ -53,8 +53,8 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         df -hT
-        sudo -E apt-get purge -y --ignore-missing azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
-        sudo -E apt-get autoremove -y --purge
+        # sudo -E apt-get purge -y --ignore-missing azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
+        # sudo -E apt-get autoremove -y --purge
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
@@ -110,9 +110,15 @@ jobs:
       run: |
         cd openwrt
         make target/linux/compile || true
-        echo "NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)" >> $GITHUB_ENV
+        NEW_VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
         cp ./build_dir/target-*/linux-*/linux-*/.config.set new_config.set
-        echo -e "CONFIG_SET_DIFF=$(diff official_config.set new_config.set)" >> $GITHUB_ENV
+        if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
+          MSG="The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n"
+          MSG="${MSG}.config.set diff:\n"
+          DIFF=$(diff --minimal official_config.set new_config.set)
+          echo -e "MSG=${MSG}${DIFF}" >> $GITHUB_ENV
+          echo -e "${MSG}```\n${DIFF}\n```\n" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Generate diffconfig
       run: |
@@ -138,13 +144,6 @@ jobs:
         base: ${{ env.BRANCH }}
         commit-message: update config ${{ env.OUTPUT_NAME }}
         title: update config ${{ env.OUTPUT_NAME }}
-        body: |
-          Official vermagic: ${{ env.OFFICIAL_VERMAGIC }}
-
-          New vermagic: ${{ env.NEW_VERMAGIC }}
-
-          .config.set diff:
-
-          ${{ env.CONFIG_SET_DIFF }}
+        body: ${{ env.MSG }}
         add-paths: |
           diffconfig

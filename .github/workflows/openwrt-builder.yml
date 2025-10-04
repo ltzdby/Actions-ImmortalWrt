@@ -115,8 +115,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(($(nproc)+1)) thread compile"
-        make -j$(($(nproc)+1)) && echo "STATUS=success" >> $GITHUB_ENV || true
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) && echo "STATUS=success" >> $GITHUB_ENV || true
 
     - name: Retry compiling the firmware
       id: retry
