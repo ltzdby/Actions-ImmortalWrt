@@ -115,7 +115,7 @@ jobs:
         if [ $OFFICIAL_VERMAGIC != $NEW_VERMAGIC ]; then
           MSG="The new vermagic: $NEW_VERMAGIC does not match official vermagic: $OFFICIAL_VERMAGIC\n"
           MSG="${MSG}.config.set diff:\n"
-          DIFF=$(diff --minimal official_config.set new_config.set)
+          DIFF=$(diff --minimal official_config.set new_config.set || true)
           echo -e "MSG=${MSG}${DIFF}" >> $GITHUB_ENV
           echo -e "${MSG}```\n${DIFF}\n```\n" >> $GITHUB_STEP_SUMMARY
         fi
