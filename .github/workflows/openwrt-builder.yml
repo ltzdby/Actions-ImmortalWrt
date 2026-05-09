@@ -34,7 +34,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Initialize environment
@@ -42,7 +42,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         df -hT
-        sudo -E apt-get purge -y --ignore-missing --autoremove --purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
+        sudo -E apt-get purge -y --ignore-missing --autoremove azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo rm -rf /etc/apt/sources.list.d
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
@@ -75,7 +75,6 @@ jobs:
 
     - name: Clone source code
       run: |
-        df -hT
         REPO_BRANCH=$(echo "${{ github.ref_name }}" | cut -d '_' -f 1)
         echo "REPO_BRANCH=${REPO_BRANCH}" >> $GITHUB_ENV
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
