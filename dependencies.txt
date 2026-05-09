@@ -8,9 +8,8 @@ gcc-multilib
 g++-multilib
 gettext
 git
-libncurses-dev
+libncurses5-dev
 libssl-dev
-python3-distutils
 python3-setuptools
 rsync
 swig 
