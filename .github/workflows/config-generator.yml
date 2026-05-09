@@ -34,6 +34,12 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Clone source code
+      run: |
+        git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
+        wget -O openwrt/.config https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${{ inputs.target }}/config.buildinfo
+
+
     - name: Switch to branch
       run: |
         TARGET_NAME=$(echo "${{ inputs.target }}" | sed 's/\//_/g')
@@ -42,11 +48,6 @@ jobs:
         echo "BRANCH=$BRANCH" >> $GITHUB_ENV
         git fetch origin $BRANCH || (git checkout -b $BRANCH && git push -u origin $BRANCH)
         git checkout $BRANCH
-
-    - name: Clone source code
-      run: |
-        git clone $REPO_URL -b $REPO_BRANCH --single-branch --filter=blob:none openwrt
-        wget -O openwrt/.config https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${{ inputs.target }}/config.buildinfo
 
     - name: Initialize environment
       env:
