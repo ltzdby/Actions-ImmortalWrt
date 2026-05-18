@@ -58,7 +58,10 @@ jobs:
 
     - name: Load custom feeds
       run: |
-        [ -e $FEEDS_CONF ] && cat $FEEDS_CONF imagebuilder/repositories.conf > repositories_tmp.conf && mv repositories_tmp.conf imagebuilder/repositories.conf
+        if [ -e $FEEDS_CONF ]; then
+            cat $FEEDS_CONF imagebuilder/repositories.conf > repositories_tmp.conf
+            mv repositories_tmp.conf imagebuilder/repositories.conf
+        fi
 
     - name: Build image
       run: |
