@@ -58,8 +58,12 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo -E apt-get update -y
+        sudo -E apt-get purge -y --ignore-missing --autoremove azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests build-essential file libncurses-dev zlib1g-dev gawk git \
           gettext libssl-dev xsltproc rsync wget unzip python3
+
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@v10
 
     - name: Load custom feeds
       run: |
