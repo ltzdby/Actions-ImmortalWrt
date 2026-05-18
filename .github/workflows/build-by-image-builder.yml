@@ -1,0 +1,104 @@
+name: Build by Image Builder
+run-name: Image Builder - ${{ inputs.version }} - ${{ inputs.target }}
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      target:
+        type: string
+        description: 'Target architecture'
+        required: true
+        default: 'x86/64'
+      version:
+        type: string
+        description: 'Release version'
+        required: true
+      profile:
+        type: string
+        description: 'Profile of target, `make info` to view available profiles'
+        required: false
+      upload_2_release:
+        type: boolean
+        description: 'Upload to release'
+        required: true
+        default: false
+
+env:
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  FEEDS_CONF: feeds.conf.default
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download Image Builder
+      run: |
+        TARGET_NAME=$(echo "${{ inputs.target }}" | sed 's/\//_/g')
+        echo "TARGET_NAME=${TARGET_NAME}" >> $GITHUB_ENV
+        ARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f1 )
+        SUBARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f2- )
+        # immortalwrt-imagebuilder-24.10.6-x86-64.Linux-x86_64.tar.zst
+        IMAGE_BUILDER_FILE_NAME="immortalwrt-imagebuilder-${{ inputs.target }}-${ARCH}-${SUBARCH}.Linux-${TARGET_NAME}.tar.zst"
+        wget https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${ARCH}/${SUBARCH}/${IMAGE_BUILDER_FILE_NAME}
+        mkdir imagebuilder
+        tar --zstd -xf ${IMAGE_BUILDER_FILE_NAME} -C imagebuilder --strip-components 1
+
+    - name: Initialize environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get update -y
+        sudo -E apt-get install -y --no-install-recommends --no-install-suggests build-essential file libncurses-dev zlib1g-dev gawk git \
+          gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils
+
+    - name: Load custom feeds
+      run: |
+        [ -e $FEEDS_CONF ] && cat $FEEDS_CONF imagebuilder/repositories.conf > repositories_tmp.conf && mv repositories_tmp.conf imagebuilder/repositories.conf
+
+    - name: Build image
+      run: |
+        cd imagebuilder
+        PROFILE="${{ inputs.profile }}"
+        make image ${PROFILE:+PROFILE="${PROFILE}"} PACKAGES=""
+
+    - name: Set build variables
+      run: |
+        cd imagebuilder/bin/targets/*/*
+        FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
+        VERSION="v${{ inputs.version }}_${{ env.TARGET_NAME }}_$(cat version.buildinfo)_imagebuilder"
+        echo "OUTPUT_NAME=${VERSION}_${FILE_DATE}" >> $GITHUB_ENV
+        echo "OUTPUT_PATH=$(echo $PWD)" >> $GITHUB_ENV
+
+    - name: Upload to artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ImmortalWrt_${{ env.OUTPUT_NAME }}
+        path: |
+          ${{ env.OUTPUT_PATH }}
+        if-no-files-found: error
+
+    - name: Upload to release
+      uses: softprops/action-gh-release@v2.0.8
+      if: env.UPLOAD_2_RELEASE == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.OUTPUT_NAME }}
+        body: ${{ env.OUTPUT_NAME }}
+        files: |
+          ${{ env.OUTPUT_PATH }}/*
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.3.4
+      if: env.UPLOAD_2_RELEASE == 'true'
+      with:
+        keep_latest: 3
+        delete_tag_pattern: ^v${{ inputs.version }}_${{ env.TARGET_NAME }}
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
