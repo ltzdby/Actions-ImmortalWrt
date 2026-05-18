@@ -41,18 +41,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Download Image Builder
-      run: |
-        TARGET_NAME=$(echo "${{ inputs.target }}" | sed 's/\//_/g')
-        echo "TARGET_NAME=${TARGET_NAME}" >> $GITHUB_ENV
-        ARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f1 )
-        SUBARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f2- )
-        # immortalwrt-imagebuilder-24.10.6-x86-64.Linux-x86_64.tar.zst
-        IMAGE_BUILDER_FILE_NAME="immortalwrt-imagebuilder-${{ inputs.version }}-${ARCH}-${SUBARCH}.Linux-${TARGET_NAME}.tar.zst"
-        wget https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${ARCH}/${SUBARCH}/${IMAGE_BUILDER_FILE_NAME}
-        mkdir imagebuilder
-        tar --zstd -xf ${IMAGE_BUILDER_FILE_NAME} -C imagebuilder --strip-components 1
-
     - name: Initialize environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -71,6 +59,18 @@ jobs:
             cat $FEEDS_CONF imagebuilder/repositories.conf > repositories_tmp.conf
             mv repositories_tmp.conf imagebuilder/repositories.conf
         fi
+
+    - name: Download Image Builder
+      run: |
+        TARGET_NAME=$(echo "${{ inputs.target }}" | sed 's/\//_/g')
+        echo "TARGET_NAME=${TARGET_NAME}" >> $GITHUB_ENV
+        ARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f1 )
+        SUBARCH=$(echo "${{ inputs.target }}" | cut -d '/' -f2- )
+        # immortalwrt-imagebuilder-24.10.6-x86-64.Linux-x86_64.tar.zst
+        IMAGE_BUILDER_FILE_NAME="immortalwrt-imagebuilder-${{ inputs.version }}-${ARCH}-${SUBARCH}.Linux-${TARGET_NAME}.tar.zst"
+        wget https://downloads.immortalwrt.org/releases/${{ inputs.version }}/targets/${ARCH}/${SUBARCH}/${IMAGE_BUILDER_FILE_NAME}
+        mkdir imagebuilder
+        tar --zstd -xf ${IMAGE_BUILDER_FILE_NAME} -C imagebuilder --strip-components 1
 
     - name: Build image
       run: |
