@@ -18,6 +18,11 @@ on:
         type: string
         description: 'Profile of target, `make info` to view available profiles'
         required: false
+      rootfs_partsize:
+        type: number
+        description: 'Root partition size'
+        required: true
+        default: 1024
       upload_2_release:
         type: boolean
         description: 'Upload to release'
@@ -67,7 +72,7 @@ jobs:
       run: |
         cd imagebuilder
         PROFILE="${{ inputs.profile }}"
-        make image ${PROFILE:+PROFILE="${PROFILE}"} PACKAGES="bind-dig dnsmasq-full curl darkstat iftop ip-full librespeed-go luci-app-cloudflared luci-app-dockerman luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd luci-app-wol nano-full nexttrace parted resize2fs tcpdump wget-ssl"
+        make image ${PROFILE:+PROFILE="${PROFILE}"} ROOTFS_PARTSIZE=${{ inputs.rootfs_partsize }} PACKAGES="bind-dig dnsmasq-full curl darkstat iftop ip-full librespeed-go luci-app-cloudflared luci-app-dockerman luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd luci-app-wol nano-full nexttrace parted resize2fs tcpdump wget-ssl"
 
     - name: Set build variables
       run: |
