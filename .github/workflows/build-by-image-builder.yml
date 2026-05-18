@@ -54,7 +54,7 @@ jobs:
       run: |
         sudo -E apt-get update -y
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests build-essential file libncurses-dev zlib1g-dev gawk git \
-          gettext libssl-dev xsltproc rsync wget unzip python3 python3-distutils
+          gettext libssl-dev xsltproc rsync wget unzip python3
 
     - name: Load custom feeds
       run: |
@@ -64,7 +64,7 @@ jobs:
       run: |
         cd imagebuilder
         PROFILE="${{ inputs.profile }}"
-        make image ${PROFILE:+PROFILE="${PROFILE}"} PACKAGES=""
+        make image ${PROFILE:+PROFILE="${PROFILE}"} PACKAGES="bind-dig dnsmasq-full curl darkstat iftop ip-full librespeed-go luci-app-cloudflared luci-app-dockerman luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd luci-app-wol nano-full nexttrace parted resize2fs tcpdump wget-ssl"
 
     - name: Set build variables
       run: |
