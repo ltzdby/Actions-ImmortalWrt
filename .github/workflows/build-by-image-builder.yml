@@ -145,7 +145,7 @@ jobs:
 
     - name: Upload to release
       uses: softprops/action-gh-release@v2.0.8
-      if: inputs.upload_2_release == 'true'
+      if: inputs.upload_2_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -156,7 +156,7 @@ jobs:
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.3.4
-      if: inputs.upload_2_release == 'true'
+      if: inputs.upload_2_release
       with:
         keep_latest: 3
         delete_tag_pattern: ^imagebuilder/${{ env.VERSION_TARGET }}
