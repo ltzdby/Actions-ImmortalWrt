@@ -71,7 +71,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo -E apt-get update -y
-        sudo -E apt-get purge -y --ignore-missing --autoremove azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
+        # sudo -E apt-get purge -y --ignore-missing --autoremove azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby*
         sudo -E apt-get install -y --no-install-recommends --no-install-suggests ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
           bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
           g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
@@ -80,11 +80,12 @@ jobs:
           ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
           python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
           upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@v10
-      with:
-        root-reserve-mb: 4096
-        swap-size-mb: 4096
+
+    # - name: Maximize build space
+    #   uses: easimon/maximize-build-space@v10
+    #   with:
+    #     root-reserve-mb: 4096
+    #     swap-size-mb: 4096
 
     - name: Load custom feeds
       run: |
@@ -108,35 +109,37 @@ jobs:
     - name: Build image
       run: |
         cd imagebuilder
-        # Modify .config based on user inputs if needed
-        if [ "${{ inputs.build_iso_images }}" == "false" ]; then
-          sed -i 's/CONFIG_ISO_IMAGES=y//' .config
-        fi
-        if [ "${{ inputs.build_qcow2_images }}" == "false" ]; then
-          sed -i 's/CONFIG_QCOW2_IMAGES=y//' .config
-        fi
-        if [ "${{ inputs.build_vdi_images }}" == "false" ]; then
-          sed -i 's/CONFIG_VDI_IMAGES=y//' .config
-        fi
-        if [ "${{ inputs.build_vmdk_images }}" == "false" ]; then
-          sed -i 's/CONFIG_VMDK_IMAGES=y//' .config
-        fi
-        if [ "${{ inputs.build_vhdx_images }}" == "false" ]; then
-          sed -i 's/CONFIG_VHDX_IMAGES=y//' .config
-        fi
+        # # Modify .config based on user inputs if needed
+        # if [ "${{ inputs.build_iso_images }}" == "false" ]; then
+        #   sed -i 's/CONFIG_ISO_IMAGES=y//' .config
+        # fi
+        # if [ "${{ inputs.build_qcow2_images }}" == "false" ]; then
+        #   sed -i 's/CONFIG_QCOW2_IMAGES=y//' .config
+        # fi
+        # if [ "${{ inputs.build_vdi_images }}" == "false" ]; then
+        #   sed -i 's/CONFIG_VDI_IMAGES=y//' .config
+        # fi
+        # if [ "${{ inputs.build_vmdk_images }}" == "false" ]; then
+        #   sed -i 's/CONFIG_VMDK_IMAGES=y//' .config
+        # fi
+        # if [ "${{ inputs.build_vhdx_images }}" == "false" ]; then
+        #   sed -i 's/CONFIG_VHDX_IMAGES=y//' .config
+        # fi
         PROFILE="${{ inputs.profile }}"
         make image ${PROFILE:+PROFILE="${PROFILE}"} \
           ROOTFS_PARTSIZE=${{ inputs.rootfs_partsize }} \
           PACKAGES="bind-dig dnsmasq-full curl darkstat iftop ip-full librespeed-go luci-app-cloudflared \
             luci-app-dockerman luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd \
-            luci-app-wol nano-full nexttrace parted resize2fs tcpdump wget-ssl" --trace
+            luci-app-wol nano-full nexttrace parted resize2fs tcpdump wget-ssl"
 
     - name: Set build variables
       run: |
         cd imagebuilder/bin/targets/*/*
+        ls -l
         FILE_DATE=$(date -u +"%Y%m%dT%H%M%SZ")
-        VERSION="v${{ inputs.version }}_${{ env.TARGET_NAME }}_$(cat version.buildinfo)_imagebuilder"
-        echo "OUTPUT_NAME=${VERSION}_${FILE_DATE}" >> $GITHUB_ENV
+        VERSION_TARGET="v${{ inputs.version }}_${{ env.TARGET_NAME }}"
+        echo "VERSION_TARGET=${VERSION_TARGET}" >> $GITHUB_ENV
+        echo "OUTPUT_NAME=${VERSION_TARGET}_${FILE_DATE}" >> $GITHUB_ENV
         echo "OUTPUT_PATH=$(echo $PWD)" >> $GITHUB_ENV
 
     - name: Upload to artifact
@@ -153,7 +156,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.OUTPUT_NAME }}
+        tag_name: imagebuilder/${{ env.OUTPUT_NAME }}
         body: ${{ env.OUTPUT_NAME }}
         files: |
           ${{ env.OUTPUT_PATH }}/*
@@ -163,7 +166,7 @@ jobs:
       if: env.UPLOAD_2_RELEASE == 'true'
       with:
         keep_latest: 3
-        delete_tag_pattern: ^v${{ inputs.version }}_${{ env.TARGET_NAME }}
+        delete_tag_pattern: ^imagebuilder/${{ env.VERSION_TARGET }}
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
