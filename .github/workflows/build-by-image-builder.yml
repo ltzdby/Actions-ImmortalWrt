@@ -122,7 +122,7 @@ jobs:
         make image ${PROFILE:+PROFILE="${PROFILE}"} \
           ROOTFS_PARTSIZE=${{ inputs.rootfs_partsize }} \
           PACKAGES="bash curl wget-ssl jq less nano-full coreutils findutils grep sed gawk diffutils tree tar gzip xz unzip \
-            ip-full ethtool tcpdump bind-dig traceroute dnsmasq-full iftop lsblk blockdev losetup fdisk parted blkid resize2fs \
+            ip-full ethtool tcpdump bind-dig dnsmasq-full iftop lsblk blockdev losetup fdisk parted blkid resize2fs \
             lsof strace file rsync darkstat librespeed-go luci-app-cloudflared luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd \
             luci-app-wol nexttrace"
 
