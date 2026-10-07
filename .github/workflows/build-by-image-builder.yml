@@ -123,8 +123,9 @@ jobs:
           ROOTFS_PARTSIZE=${{ inputs.rootfs_partsize }} \
           PACKAGES="bash curl wget-ssl jq less nano-full coreutils findutils grep sed gawk diffutils tree tar gzip xz unzip \
             ip-full ethtool tcpdump bind-dig dnsmasq-full iftop lsblk blockdev losetup fdisk parted blkid resize2fs \
-            lsof strace file rsync darkstat librespeed-go luci-app-cloudflared luci-app-passwall luci-app-pbr luci-app-ttyd luci-app-upnp luci-app-vlmcsd \
-            luci-app-wol nexttrace"
+            lsof strace file rsync darkstat nexttrace librespeed-go luci-app-cloudflared luci-i18n-cloudflared-zh-cn \
+            luci-app-passwall luci-i18n-passwall-zh-cn luci-app-pbr luci-i18n-pbr-zh-cn luci-app-ttyd luci-i18n-ttyd-zh-cn \
+            luci-app-upnp luci-i18n-upnp-zh-cn luci-app-vlmcsd luci-i18n-vlmcsd-zh-cn luci-app-wol luci-i18n-wol-zh-cn"
 
     - name: Set build variables
       run: |
